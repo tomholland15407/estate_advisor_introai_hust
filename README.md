@@ -59,6 +59,24 @@ Gợi ý nhà cho gia đình (cấu hình đầy đủ):
 
 (Thời gian chạy trên máy mỗi người sẽ hơi khác, nhưng số **Nodes** thì luôn giống nhau.)
 
+
+### Chuyển giữa 2 phiên bản (branch)
+
+Repo có 2 branch, mỗi branch là một phiên bản đầy đủ (code + dữ liệu + hướng dẫn):
+
+| Branch | Dữ liệu |
+|---|---|
+| `hanoi` | 1.500 căn nhà ở 12 quận nội thành Hà Nội (2020–2021) |
+| `hai_ba_trung` | 1.678 căn hộ ở quận Hai Bà Trưng (2025), do nhóm tổng hợp |
+
+```bash
+git branch                 # xem đang ở branch nào (có dấu *)
+git switch hai_ba_trung    # chuyển sang phiên bản Hai Bà Trưng
+git switch hanoi           # chuyển sang phiên bản Hà Nội
+```
+
+Sau khi chuyển, các file trong thư mục tự thay đổi theo branch. Nếu Git báo lỗi vì bạn đã sửa file, chạy `git stash` trước rồi chuyển lại.
+
 ---
 
 ## 2. Bài toán là gì?
