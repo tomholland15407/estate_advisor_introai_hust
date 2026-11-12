@@ -25,6 +25,6 @@ Median price is ~3.75 billion VND and median area ~40 m².
 
 ### Source & license
 
-Raw data: [Vietnam Housing Dataset (Hanoi)](https://www.kaggle.com/datasets/ladcva/vietnam-housing-dataset-hanoi) by Le Anh Duc, scraped from alonhadat.com.vn,
+Raw data: [Vietnam Housing Dataset (Hanoi)](https://www.kaggle.com/datasets/ladcva/vietnam-housing-dataset-hanoi) by Le Anh Duc,
 licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). The raw file in this repo is a subset (10,980 rows) taken from the
 [NCT-NEU mirror](https://github.com/NCT-NEU/Sach_Khoa_hoc_du_lieu_python/tree/main/datasets). The derived dataset here is shared under the same license, for non-commercial use.
