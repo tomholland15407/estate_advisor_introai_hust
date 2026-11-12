@@ -28,8 +28,8 @@
 Chỉ cần **Python 3** (không cần cài thư viện nào).
 
 ```bash
-git clone -b hai-ba-trung-apartments https://github.com/tomholland15407/hanoi-real-estate-advisor.git
-cd hanoi-real-estate-advisor
+git clone -b hai_ba_trung https://github.com/tomholland15407/estate_advisor_introai_hust.git
+cd estate_advisor_introai_hust
 python3 csp_advisor/m5_solver.py         # ngân sách mặc định 11 tỷ -> có lời giải
 python3 csp_advisor/m5_solver.py 8.0     # ngân sách 8.0 tỷ -> chứng minh KHÔNG có lời giải
 ```
@@ -94,7 +94,7 @@ Bố mẹ – Ông bà (để tiện chăm sóc), Bố mẹ – Con gái.
 ## 3. Cấu trúc thư mục
 
 ```
-hanoi-real-estate-advisor/
+estate_advisor_introai_hust/
 ├── README.md                  ← file bạn đang đọc
 ├── csp_advisor/
 │   ├── m1_problem.py          ← Thành viên 1: biến, miền, dữ liệu, yêu cầu của từng người
