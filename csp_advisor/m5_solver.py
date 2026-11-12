@@ -1,7 +1,7 @@
 """
 MODULE 5 — BỘ GIẢI BACKTRACKING & CHƯƠNG TRÌNH CHÍNH (Thành viên 5)
 
-Chạy:  python3 csp_advisor/m5_solver.py          (ngân sách mặc định 8.5 tỷ)
+Chạy:  python3 csp_advisor/m5_solver.py          (ngân sách mặc định 11 tỷ) 
        python3 csp_advisor/m5_solver.py 8.0      (thử ngân sách khác)
 
 Backtracking search = tìm kiếm theo chiều sâu (DFS), mỗi tầng gán thêm 1 biến.
@@ -67,7 +67,7 @@ def print_solution(csp, solution):
     for var in csp.variables:
         h = csp.houses[solution[var]]
         total += h["price"]
-        print(f"  {var:<9}-> căn #{h['id']:<4} {h['district']:<13} "
+        print(f"  {var:<9}-> căn #{h['id']:<4} {h['type']:<16} phố {h['street']:<14} "
               f"{h['price']:>5.2f} tỷ  {h['area']:>5.1f} m²  {h['bedrooms']} PN")
     print(f"  Tổng: {total:.2f} / {csp.total_budget} tỷ")
 
@@ -86,7 +86,7 @@ def main():
 
     csp = build_csp(budget)
     print(f"Ngân sách gia đình: {budget} tỷ")
-    print(f"Số căn nhà trong dữ liệu: {len(csp.houses)}")
+    print(f"Số căn hộ trong dữ liệu: {len(csp.houses)}")
     apply_node_consistency(csp)
     print("Domain sau khi lọc ràng buộc đơn (node consistency):")
     for var in csp.variables:
@@ -105,7 +105,7 @@ def main():
         best = (csp, solution)
 
     csp, solution = best
-    print("\nGợi ý nhà cho gia đình (cấu hình đầy đủ):")
+    print("\nGợi ý căn hộ cho gia đình (cấu hình đầy đủ):")
     if solution is None:
         print("  Không có lời giải — thuật toán đã CHỨNG MINH không tồn tại cách chọn nào.")
         print("  Hãy tăng ngân sách hoặc nới lỏng yêu cầu trong m1_problem.py")

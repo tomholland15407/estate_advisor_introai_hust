@@ -1,4 +1,4 @@
-# Hanoi Real Estate Advisor — Tư vấn mua nhà Hà Nội bằng CSP
+# Hai Bà Trưng Apartment Advisor — Tư vấn mua căn hộ bằng CSP
 
 > Bài tập lớn môn **Nhập môn Trí tuệ Nhân tạo** — Đại học Bách khoa Hà Nội (HUST).
 > Repo này là **sổ tay hướng dẫn nội bộ** cho 5 thành viên trong nhóm. Repo nộp cho thầy/cô sẽ làm riêng.
@@ -11,7 +11,7 @@
 2. [Bài toán là gì?](#2-bài-toán-là-gì)
 3. [Cấu trúc thư mục](#3-cấu-trúc-thư-mục)
 4. [Bức tranh tổng thể: các module nối với nhau thế nào](#4-bức-tranh-tổng-thể)
-5. [Kết quả thực nghiệm (con số để khoe với thầy)](#5-kết-quả-thực-nghiệm)
+5. [Kết quả thực nghiệm (con số để trình bày với thầy/cô)](#5-kết-quả-thực-nghiệm)
 6. Hướng dẫn bảo vệ cho từng thành viên
    - [Thành viên 1 — Phát biểu bài toán](#thành-viên-1--module-1-phát-biểu-bài-toán--định-nghĩa-trạng-thái)
    - [Thành viên 2 — Kiểm tra ràng buộc](#thành-viên-2--module-2-bộ-kiểm-tra-ràng-buộc)
@@ -28,64 +28,66 @@
 Chỉ cần **Python 3** (không cần cài thư viện nào).
 
 ```bash
-git clone https://github.com/tomholland15407/hanoi-real-estate-advisor.git
+git clone -b hai-ba-trung-apartments https://github.com/tomholland15407/hanoi-real-estate-advisor.git
 cd hanoi-real-estate-advisor
-python3 csp_advisor/m5_solver.py         # ngân sách mặc định 8.5 tỷ -> có lời giải
+python3 csp_advisor/m5_solver.py         # ngân sách mặc định 11 tỷ -> có lời giải
 python3 csp_advisor/m5_solver.py 8.0     # ngân sách 8.0 tỷ -> chứng minh KHÔNG có lời giải
 ```
 
-Kết quả mẫu (ngân sách 8.5 tỷ):
+Kết quả mẫu (ngân sách 11 tỷ):
 
 ```
 Domain sau khi lọc ràng buộc đơn (node consistency):
-  Con gái  : 684 căn
-  Con trai : 137 căn
-  Bố mẹ    : 73 căn
-  Ông bà   : 61 căn
+  Con gái  : 504 căn
+  Con trai : 270 căn
+  Bố mẹ    : 366 căn
+  Ông bà   : 375 căn
 
 Cấu hình                     Nodes  Quay lui  Cắt tỉa  Thời gian
-Backtracking thuần         1031369     14412        0    454.0ms
-+ Forward Checking           11402      1226   230063    157.3ms
-+ FC + MRV/Degree              481        31    67744     46.6ms
-+ FC + MRV/Degree + LCV          4         0      768     13.8ms
+Backtracking thuần          312093       844        0    101.4ms
++ Forward Checking             848        59   105473     62.1ms
++ FC + MRV/Degree              274        13    78889     33.9ms
++ FC + MRV/Degree + LCV          4         0      838     62.9ms
 
-Gợi ý nhà cho gia đình (cấu hình đầy đủ):
-  Con gái  -> căn #309  Hai Bà Trưng   1.45 tỷ   40.0 m²  2 PN
-  Con trai -> căn #1052 Thanh Xuân     2.40 tỷ   35.0 m²  3 PN
-  Bố mẹ    -> căn #1316 Đống Đa        2.40 tỷ   71.0 m²  4 PN
-  Ông bà   -> căn #459  Hoàn Kiếm      2.25 tỷ   40.0 m²  2 PN
-  Tổng: 8.50 / 8.5 tỷ
+Gợi ý căn hộ cho gia đình (cấu hình đầy đủ):
+  Con gái  -> căn #1186 Căn hộ chung cư  phố Lò Đúc          2.25 tỷ  100.0 m²  2 PN
+  Con trai -> căn #794  Căn hộ chung cư  phố Thọ Lão         2.00 tỷ  100.0 m²  2 PN
+  Bố mẹ    -> căn #1435 Nhà tập thể      phố Lò Đúc          3.78 tỷ   75.0 m²  3 PN
+  Ông bà   -> căn #818  Nhà tập thể      phố Lò Đúc          2.40 tỷ   50.0 m²  3 PN
+  Tổng: 10.43 / 11.0 tỷ
 ```
 
-(Thời gian chạy trên máy mỗi người sẽ hơi khác, nhưng số **Nodes** thì luôn giống nhau.)
+(Thời gian chạy trên máy mỗi người sẽ khác, nhưng số **Nodes**, **Quay lui**, **Cắt tỉa** thì luôn giống nhau.)
 
 ---
 
 ## 2. Bài toán là gì?
 
-Một gia đình ở Hà Nội muốn mua **4 căn nhà** cho 4 nhóm người: **Con gái, Con trai, Bố mẹ, Ông bà**.
+Một gia đình muốn mua **4 căn hộ ở quận Hai Bà Trưng** cho 4 nhóm người: **Con gái, Con trai, Bố mẹ, Ông bà**.
 
 **Yêu cầu riêng của từng người** (ràng buộc đơn — *unary*):
 
-| Người | Giá tối đa | Diện tích tối thiểu | Phòng ngủ tối thiểu | Quận mong muốn |
+| Người | Giá tối đa | Diện tích tối thiểu | Phòng ngủ tối thiểu | Loại căn hộ |
 |---|---|---|---|---|
-| Con gái | 4.0 tỷ | 30 m² | 2 | Quận nào cũng được |
-| Con trai | 4.5 tỷ | 35 m² | 2 | Cầu Giấy, Thanh Xuân, Nam Từ Liêm |
-| Bố mẹ | 7.0 tỷ | 50 m² | 3 | Đống Đa, Ba Đình, Hai Bà Trưng |
-| Ông bà | 6.0 tỷ | 40 m² | 2 | Hoàn Kiếm, Ba Đình, Tây Hồ |
+| Con gái | 5.0 tỷ | 40 m² | 2 | Loại nào cũng được |
+| Con trai | 7.0 tỷ | 60 m² | 2 | Chỉ căn hộ chung cư |
+| Bố mẹ | 9.0 tỷ | 70 m² | 3 | Loại nào cũng được |
+| Ông bà | 5.0 tỷ | 50 m² | 2 | Chỉ nhà tập thể |
 
-**Yêu cầu giữa các người** (ràng buộc nhị phân — *binary*): các cặp sau phải ở **cùng quận hoặc quận giáp ranh**:
-Bố mẹ – Con trai, Bố mẹ – Con gái, Bố mẹ – Ông bà, Con gái – Ông bà.
+(Trong `m1_problem.py` mỗi người còn có mục `streets` để chọn phố mong muốn; mặc định là "phố nào cũng được".)
+
+**Yêu cầu giữa các người** (ràng buộc nhị phân — *binary*): các cặp sau phải ở **cùng một phố**:
+Bố mẹ – Ông bà (để tiện chăm sóc), Bố mẹ – Con gái.
 
 **Yêu cầu chung cả nhà** (ràng buộc toàn cục — *global*):
-- Tổng tiền 4 căn ≤ **8.5 tỷ**.
+- Tổng tiền 4 căn ≤ **11 tỷ**.
 - Không ai mua trùng một căn (*AllDiff*).
 
-**Dữ liệu:** 1.500 căn nhà thật ở 12 quận nội thành Hà Nội (tin đăng 2020–2021), xem [`data/README.md`](data/README.md).
+**Dữ liệu:** 1.678 tin rao bán căn hộ thật ở Hai Bà Trưng (tháng 6–12/2025), do nhóm tổng hợp, xem [`data/README.md`](data/README.md).
 
-> **Vì sao không chỉ tìm 1 căn nhà?** Tìm 1 căn thỏa điều kiện chỉ là *lọc dữ liệu* (một vòng `for` là xong),
+> **Vì sao không chỉ tìm 1 căn hộ?** Tìm 1 căn thoả điều kiện chỉ là *lọc dữ liệu* (một vòng `for` là xong),
 > không cần AI. Khi có **nhiều người** và **ràng buộc giữa họ**, lựa chọn của người này ảnh hưởng người kia →
-> số tổ hợp bùng nổ (684 × 137 × 73 × 61 ≈ **417 triệu** tổ hợp) → lúc đó mới cần thuật toán tìm kiếm thông minh.
+> số tổ hợp bùng nổ (504 × 270 × 366 × 375 ≈ **18,7 tỷ** tổ hợp) → lúc đó mới cần thuật toán tìm kiếm thông minh.
 
 ---
 
@@ -95,15 +97,15 @@ Bố mẹ – Con trai, Bố mẹ – Con gái, Bố mẹ – Ông bà, Con gái
 hanoi-real-estate-advisor/
 ├── README.md                  ← file bạn đang đọc
 ├── csp_advisor/
-│   ├── m1_problem.py          ← Thành viên 1: biến, miền, dữ liệu, bản đồ quận
+│   ├── m1_problem.py          ← Thành viên 1: biến, miền, dữ liệu, yêu cầu của từng người
 │   ├── m2_constraints.py      ← Thành viên 2: kiểm tra ràng buộc
 │   ├── m3_heuristics.py       ← Thành viên 3: MRV, Degree, LCV
 │   ├── m4_inference.py        ← Thành viên 4: Forward Checking + khôi phục
 │   └── m5_solver.py           ← Thành viên 5: Backtracking + chạy chương trình  ◄ CHẠY FILE NÀY
 ├── data/
-│   ├── hanoi_houses.csv       ← 1.500 căn nhà đã làm sạch
-│   ├── raw/                   ← dữ liệu gốc
-│   └── README.md              ← nguồn & giấy phép dữ liệu
+│   ├── apartments.csv         ← 1.678 căn hộ đã làm sạch
+│   ├── raw/                   ← file gốc của nhóm
+│   └── README.md              ← nguồn, cách làm sạch & giấy phép dữ liệu
 └── scripts/build_dataset.py   ← script làm sạch dữ liệu
 ```
 
@@ -138,17 +140,23 @@ Câu nói tóm tắt cho cả nhóm:
 
 ## 5. Kết quả thực nghiệm
 
-| Cấu hình | Nodes (8.5 tỷ) | Nodes (8.0 tỷ — vô nghiệm) |
-|---|---:|---:|
-| Backtracking thuần | 1.031.369 | 6.988.546 |
-| + Forward Checking | 11.402 | 39.081 |
-| + FC + MRV/Degree | 481 | 365 |
-| + FC + MRV/Degree + LCV | **4** | 365 |
+| Cấu hình | Nodes (11 tỷ) | Thời gian (11 tỷ) | Nodes (8.0 tỷ — vô nghiệm) | Thời gian (8.0 tỷ) |
+|---|---:|---:|---:|---:|
+| Backtracking thuần | 312.093 | 101 ms | 8.917.149 | 2.280 ms |
+| + Forward Checking | 848 | 62 ms | 17.990 | 335 ms |
+| + FC + MRV/Degree | 274 | 34 ms | 5.808 | 947 ms |
+| + FC + MRV/Degree + LCV | **4** | 63 ms | 5.808 | 1.273 ms |
 
-Ba điều rút ra (nên nói khi thuyết trình):
-1. **Forward Checking** giảm số node khoảng **90 lần**: phát hiện ngõ cụt sớm thay vì đi sâu rồi mới biết.
-2. **MRV** giảm thêm khoảng **20 lần**: chọn biến "khó" trước nên thất bại xảy ra ở tầng nông của cây.
-3. **LCV** đưa xuống còn **4 node** = gán thẳng 4 biến, không quay lui lần nào. Nhưng khi bài toán **vô nghiệm** (8.0 tỷ), LCV **không giúp gì** — vì phải duyệt hết mọi khả năng thì thứ tự thử giá trị không quan trọng. Đây là điểm hiểu sâu thầy/cô rất thích nghe.
+(Thời gian đo trên một máy Mac; máy khác sẽ khác, nhưng xu hướng giống nhau.)
+
+Bốn điều rút ra (nên nói khi thuyết trình):
+1. **Forward Checking** giảm số node khoảng **370 lần** (312.093 → 848): phát hiện ngõ cụt sớm thay vì đi sâu rồi mới biết.
+2. **MRV** giảm thêm khoảng **3 lần**: chọn biến "khó" trước nên thất bại xảy ra ở tầng nông của cây.
+3. **LCV** đưa xuống còn **4 node** = gán thẳng 4 biến, không quay lui lần nào. Khi bài toán **vô nghiệm** (8.0 tỷ), LCV **không giảm node nào** —
+   vì phải duyệt hết mọi khả năng thì thứ tự thử giá trị không quan trọng.
+4. **Ít node hơn không có nghĩa là nhanh hơn.** LCV chỉ cần 4 node nhưng mỗi node phải đếm hàng trăm nghìn phép kiểm tra, nên tổng thời gian
+   (63 ms) còn chậm hơn không dùng LCV (34 ms). Ở ngân sách 8.0 tỷ, MRV giảm node 3 lần nhưng lại chậm hơn, vì Forward Checking cắt tỉa
+   nhiều hơn hẳn ở mỗi node (2,27 triệu so với 566 nghìn giá trị). Đây là điểm hiểu sâu: **chi phí mỗi node** cũng quan trọng như **số node**.
 
 ---
 
@@ -157,20 +165,20 @@ Ba điều rút ra (nên nói khi thuyết trình):
 📄 File: `csp_advisor/m1_problem.py`
 
 ### 1. Lĩnh vực phụ trách
-Biến bài toán đời thực ("gia đình muốn mua nhà") thành mô hình toán học **CSP** mà máy tính giải được.
-Đọc dữ liệu CSV, định nghĩa biến, miền giá trị, đồ thị ràng buộc và bản đồ quận giáp ranh.
+Biến bài toán đời thực ("gia đình muốn mua căn hộ") thành mô hình toán học **CSP** mà máy tính giải được.
+Đọc dữ liệu CSV, định nghĩa biến, miền giá trị, yêu cầu của từng người và đồ thị ràng buộc.
 
 ### 2. Kiến thức lý thuyết cần nắm
 - **CSP** là bộ ba **(X, D, C)**:
   - **X** — tập biến: `{Con gái, Con trai, Bố mẹ, Ông bà}`.
-  - **D** — miền giá trị của mỗi biến: tập id các căn nhà (0 → 1499).
+  - **D** — miền giá trị của mỗi biến: tập id các căn hộ (0 → 1677).
   - **C** — tập ràng buộc: quy định tổ hợp giá trị nào được phép.
-- **Trạng thái (state)** trong CSP = một **phép gán (assignment)**, ví dụ `{"Ông bà": 459, "Bố mẹ": 1316}`.
+- **Trạng thái (state)** trong CSP = một **phép gán (assignment)**, ví dụ `{"Ông bà": 818, "Bố mẹ": 1435}`.
   - **Gán đầy đủ (complete)**: mọi biến đều có giá trị.
   - **Gán nhất quán (consistent)**: không vi phạm ràng buộc nào.
   - **Lời giải (solution)** = phép gán vừa đầy đủ vừa nhất quán.
 - **Đồ thị ràng buộc (constraint graph)**: mỗi biến là 1 đỉnh, mỗi ràng buộc nhị phân là 1 cạnh.
-  Đồ thị của nhóm: `Bố mẹ` nối với cả 3 người còn lại, và `Con gái` – `Ông bà`.
+  Đồ thị của nhóm: `Bố mẹ – Ông bà`, `Bố mẹ – Con gái`. `Con trai` không có cạnh nào (chỉ bị ràng buộc qua ngân sách và AllDiff).
 - **Vì sao CSP tốt hơn tìm kiếm thông thường?** Tìm kiếm thường coi trạng thái là "hộp đen";
   CSP biết **cấu trúc bên trong** (biến, ràng buộc) nên có thể dùng heuristic và cắt tỉa tổng quát,
   không phụ thuộc bài toán cụ thể.
@@ -178,29 +186,28 @@ Biến bài toán đời thực ("gia đình muốn mua nhà") thành mô hình 
 ### 3. Giải thích code
 | Thành phần | Ý nghĩa |
 |---|---|
-| `ADJACENT_DISTRICTS` | Từ điển: mỗi quận → tập các quận giáp ranh. Bản đồ đơn giản hoá của 12 quận nội thành. |
-| `are_near(a, b)` | `True` nếu 2 quận trùng nhau **hoặc** `b` nằm trong tập giáp ranh của `a`. |
-| `REQUIREMENTS` | Yêu cầu của từng người → chính là **ràng buộc đơn**. Thứ tự khai báo = thứ tự gán khi không dùng MRV. |
-| `NEAR_PAIRS` | Danh sách cặp người phải ở gần → **ràng buộc nhị phân**, cũng là **cạnh** của đồ thị ràng buộc. |
+| `REQUIREMENTS` | Yêu cầu của từng người → chính là **ràng buộc đơn**. `types`/`streets` bằng `None` nghĩa là "loại nào/phố nào cũng được". Thứ tự khai báo = thứ tự gán khi không dùng MRV. |
+| `SAME_STREET_PAIRS` | Danh sách cặp người phải ở cùng phố → **ràng buộc nhị phân**, cũng là **cạnh** của đồ thị ràng buộc. |
 | `TOTAL_BUDGET` | Ngân sách cả nhà → **ràng buộc toàn cục**. |
 | `load_houses()` | Đọc CSV bằng `csv.DictReader`; mỗi dòng thành 1 dict; đổi chuỗi sang `float`/`int`. Dùng **số thứ tự dòng làm id**. Nếu thiếu file thì gọi `make_synthetic_houses()` sinh dữ liệu giả. |
-| `class CSP.__init__` | `self.variables` = X; `self.domains` = D (ban đầu mỗi biến nhận **mọi** căn); `self.neighbors` = danh sách kề của đồ thị ràng buộc, xây từ `near_pairs`. |
+| `class CSP.__init__` | `self.variables` = X; `self.domains` = D (ban đầu mỗi biến nhận **mọi** căn); `self.neighbors` = danh sách kề của đồ thị ràng buộc, xây từ `same_street_pairs`. |
 | `build_csp(budget)` | Tạo một CSP mới tinh. Module 5 gọi hàm này **mỗi lần chạy** để các lần chạy không ảnh hưởng nhau. |
 
 ### 4. Câu hỏi thầy/cô có thể hỏi
-**❓ Tại sao chọn biến là "người", giá trị là "căn nhà"? Đảo ngược lại được không?**
-> Được, nhưng kém hơn. Nếu biến là căn nhà (1.500 biến) và giá trị là "ai mua" (5 giá trị: 4 người + không ai), thì có 1.500 biến
-> và hầu hết phải gán "không ai" — không gian tìm kiếm khổng lồ (5^1500). Chọn người làm biến cho **4 biến** với miền vài chục
-> đến vài trăm giá trị, và các ràng buộc (gần nhau, ngân sách) phát biểu tự nhiên giữa các biến.
+**❓ Tại sao chọn biến là "người", giá trị là "căn hộ"? Đảo ngược lại được không?**
+> Được, nhưng kém hơn. Nếu biến là căn hộ (1.678 biến) và giá trị là "ai mua" (5 giá trị: 4 người + không ai), thì có 1.678 biến
+> và hầu hết phải gán "không ai" — không gian tìm kiếm khổng lồ (5^1678). Chọn người làm biến cho **4 biến** với miền vài trăm
+> giá trị, và các ràng buộc (cùng phố, ngân sách) phát biểu tự nhiên giữa các biến.
 
 **❓ Không gian trạng thái của bài toán lớn cỡ nào?**
-> Sau khi lọc ràng buộc đơn: 684 × 137 × 73 × 61 ≈ **417 triệu** phép gán đầy đủ. Tính cả phép gán dở dang
+> Sau khi lọc ràng buộc đơn: 504 × 270 × 366 × 375 ≈ **18,7 tỷ** phép gán đầy đủ. Tính cả phép gán dở dang
 > (các node trong cây tìm kiếm) còn nhiều hơn. Duyệt hết là không khả thi, nên cần backtracking + cắt tỉa.
 
-**❓ Bản đồ giáp ranh có chính xác không?**
-> Đây là bản đồ **đơn giản hoá** theo địa giới cũ (12 quận), có tính các cầu qua sông Hồng cho Long Biên. Mục tiêu là minh hoạ
-> ràng buộc nhị phân; muốn chính xác hơn có thể thay bằng khoảng cách thực (toạ độ GPS) mà **không phải sửa thuật toán** —
-> đó chính là ưu điểm của cách tách mô hình (Module 1) khỏi thuật toán (Module 3–5).
+**❓ Vì sao ràng buộc vị trí là "cùng phố" mà không phải "cùng phường" hay "gần nhau"?**
+> Toàn bộ dữ liệu nằm trong một quận (Hai Bà Trưng), nên quận không phân biệt được gì. Cột phường bị trống ở khoảng một nửa số dòng,
+> còn cột phố có ở hơn 90% dòng. "Cùng phố" là thông tin **có thật trong dữ liệu**, không phải tự đoán. Muốn dùng "gần nhau" theo khoảng cách
+> thật thì cần toạ độ GPS; khi đó chỉ cần sửa hàm `satisfies_binary` ở Module 2 mà **không phải sửa thuật toán** — đó là ưu điểm của việc
+> tách mô hình (Module 1–2) khỏi thuật toán (Module 3–5).
 
 ---
 
@@ -213,19 +220,19 @@ Biến bài toán đời thực ("gia đình muốn mua nhà") thành mô hình 
 
 ### 2. Kiến thức lý thuyết cần nắm
 - **Phân loại ràng buộc theo số biến (arity)**:
-  - **Unary** (1 biến): `price(Bố mẹ) ≤ 7.0`.
-  - **Binary** (2 biến): `near(district(Bố mẹ), district(Con trai))`.
-  - **Global / higher-order** (nhiều biến): `AllDiff(...)`, `Σ price ≤ 8.5`.
+  - **Unary** (1 biến): `price(Bố mẹ) ≤ 9.0`, `type(Ông bà) = Nhà tập thể`.
+  - **Binary** (2 biến): `street(Bố mẹ) = street(Ông bà)`.
+  - **Global / higher-order** (nhiều biến): `AllDiff(...)`, `Σ price ≤ 11`.
 - **Node consistency**: một biến là *node-consistent* nếu **mọi** giá trị trong miền thoả ràng buộc đơn của nó.
-  Ta đạt được điều này bằng cách lọc miền **một lần trước khi tìm kiếm** → miền giảm từ 1.500 xuống còn 61–684.
+  Ta đạt được điều này bằng cách lọc miền **một lần trước khi tìm kiếm** → miền giảm từ 1.678 xuống còn 270–504.
 - **Kiểm tra nhất quán**: một giá trị mới chỉ cần được kiểm tra với **các biến đã gán**; các biến chưa gán chưa có gì để mâu thuẫn.
 
 ### 3. Giải thích code
 | Hàm | Ý nghĩa |
 |---|---|
-| `satisfies_unary(csp, var, house_id)` | Lấy căn nhà và yêu cầu của người `var`; kiểm tra lần lượt giá, diện tích, phòng ngủ, quận. Sai ở đâu `return False` ngay (thoát sớm). |
+| `satisfies_unary(csp, var, house_id)` | Lấy căn hộ và yêu cầu của người `var`; kiểm tra lần lượt giá, diện tích, phòng ngủ, loại căn hộ, phố. Sai ở đâu `return False` ngay (thoát sớm). |
 | `apply_node_consistency(csp)` | Với mỗi biến, giữ lại các căn thoả `satisfies_unary`. Dùng *list comprehension*. |
-| `satisfies_binary(csp, a, ha, b, hb)` | (1) **AllDiff**: hai người không trùng căn. (2) Nếu `(a, b)` nằm trong `near_pairs` (xét cả 2 chiều) → hai quận phải `are_near`. |
+| `satisfies_binary(csp, a, ha, b, hb)` | (1) **AllDiff**: hai người không trùng căn. (2) Nếu `(a, b)` nằm trong `same_street_pairs` (xét cả 2 chiều) → hai căn phải cùng phố. |
 | `within_total_budget(csp, assignment, var, house_id)` | Cộng giá căn mới + giá các căn **đã gán** của người khác; so với ngân sách. |
 | `is_consistent(csp, assignment, var, house_id)` | **Hàm tổng hợp**: unary → binary với từng biến đã gán → ngân sách. Đây là hàm Module 4 và 5 gọi. |
 
@@ -241,7 +248,7 @@ Biến bài toán đời thực ("gia đình muốn mua nhà") thành mô hình 
 > trên các biến đã gán, và Forward Checking (Module 4) cũng tận dụng nó để loại các căn đắt hơn số tiền còn lại.
 
 **❓ Tại sao phải lọc ràng buộc đơn trước, không để tìm kiếm tự lọc?**
-> Nếu không lọc trước, mỗi lần thử một giá trị ta phải kiểm tra lại cùng điều kiện, và MRV sẽ thấy mọi miền đều có 1.500 giá trị
+> Nếu không lọc trước, mỗi lần thử một giá trị ta phải kiểm tra lại cùng điều kiện, và MRV sẽ thấy mọi miền đều có 1.678 giá trị
 > (không phân biệt được biến nào khó). Lọc trước làm **một lần duy nhất** với chi phí O(n·d) và giúp MRV có thông tin chính xác ngay từ đầu.
 
 ---
@@ -252,7 +259,7 @@ Biến bài toán đời thực ("gia đình muốn mua nhà") thành mô hình 
 
 ### 1. Lĩnh vực phụ trách
 Quyết định **thứ tự**: gán biến nào trước, thử giá trị nào trước. Không làm thay đổi kết quả đúng/sai,
-chỉ ảnh hưởng **tốc độ** — nhưng ảnh hưởng rất lớn (481 node → 4 node).
+chỉ ảnh hưởng **tốc độ** (274 node → 4 node).
 
 ### 2. Kiến thức lý thuyết cần nắm
 - **MRV — Minimum Remaining Values** (còn gọi *most constrained variable*, *fail-first*):
@@ -261,7 +268,7 @@ chỉ ảnh hưởng **tốc độ** — nhưng ảnh hưởng rất lớn (481 
 - **Degree heuristic**: dùng để **phá hoà** khi MRV bằng nhau — chọn biến tham gia **nhiều ràng buộc nhất với các biến chưa gán**
   (bậc lớn nhất trong đồ thị ràng buộc). Gán nó trước sẽ giảm nhánh của nhiều biến khác.
 - **LCV — Least Constraining Value** (*fail-last*): với biến đã chọn, thử giá trị **loại bỏ ít lựa chọn nhất** của các biến
-  láng giềng trước. Lý do: ta chỉ cần **một** lời giải, nên chọn giá trị "dễ chịu" nhất để giữ đường đi tới lời giải.
+  khác trước. Lý do: ta chỉ cần **một** lời giải, nên chọn giá trị "dễ chịu" nhất để giữ đường đi tới lời giải.
 - **Ghi nhớ**: biến → *fail-first*; giá trị → *fail-last*. Vì **mọi biến cuối cùng đều phải gán** (nên đụng cái khó trước),
   nhưng **chỉ cần một giá trị** thành công (nên thử cái dễ trước).
 
@@ -272,7 +279,7 @@ chỉ ảnh hưởng **tốc độ** — nhưng ảnh hưởng rất lớn (481 
 - Hàm con `degree(var)`: đếm láng giềng **chưa gán** của `var` trong `csp.neighbors`.
 - `min(..., key=lambda v: (len(domain), -degree))`: so sánh theo **tuple** — ưu tiên miền nhỏ nhất; nếu bằng nhau
   thì ưu tiên degree lớn nhất (dấu `-` vì dùng `min`).
-- Ví dụ: ban đầu miền `Ông bà` = 61 nhỏ nhất → MRV chọn **Ông bà** trước tiên.
+- Ví dụ: ban đầu miền `Con trai` = 270 nhỏ nhất → MRV chọn **Con trai** trước tiên.
 
 **`order_domain_values(csp, var, assignment, use_lcv)`**
 - Tính số tiền đã tiêu `assigned_cost` cho các biến đã gán.
@@ -281,20 +288,21 @@ chỉ ảnh hưởng **tốc độ** — nhưng ảnh hưởng rất lớn (481 
 - `sorted(..., key=(ruled_out, price))`: ít loại nhất lên trước; hoà thì căn rẻ hơn trước.
 
 ### 4. Câu hỏi thầy/cô có thể hỏi
-**❓ LCV tốn nhiều phép tính vậy có đáng không?**
-> Với mỗi node, LCV tốn O(d × n × d) phép kiểm tra (d = kích thước miền). Trong thực nghiệm, thời gian mỗi node tăng lên, nhưng
-> tổng số node giảm từ 481 xuống 4 nên tổng thời gian vẫn giảm (46.6ms → 13.8ms). Tuy nhiên, khi bài toán **vô nghiệm** (8.0 tỷ)
-> LCV không giảm node nào mà vẫn tốn chi phí tính toán — vì phải duyệt hết thì thứ tự giá trị không còn ý nghĩa.
-> Tương tự nếu ta muốn tìm **tất cả** lời giải.
+**❓ LCV giảm từ 274 xuống 4 node, sao thời gian lại tăng (34 ms → 63 ms)?**
+> Vì với mỗi biến, LCV phải tính `ruled_out` cho **mọi** giá trị trong miền, mỗi lần duyệt miền của các biến còn lại — chi phí
+> khoảng O(d × n × d) phép kiểm tra (d = kích thước miền, ở đây vài trăm). Số node giảm nhưng **chi phí mỗi node** tăng mạnh hơn.
+> LCV có lợi khi việc đi sai nhánh rất đắt (bài toán lớn hơn, nhiều biến hơn). Khi bài toán **vô nghiệm** (8.0 tỷ), LCV không giảm
+> node nào mà vẫn tốn chi phí — vì phải duyệt hết thì thứ tự giá trị không còn ý nghĩa. Tương tự nếu ta muốn tìm **tất cả** lời giải.
 
 **❓ Vì sao MRV gần như vô dụng nếu không có Forward Checking?**
 > Không có FC thì miền **không bao giờ bị thu nhỏ** trong lúc tìm kiếm — MRV chỉ thấy kích thước miền ban đầu, nên luôn chọn
 > theo cùng một thứ tự tĩnh. Chính FC cập nhật miền sau mỗi bước, MRV mới phản ánh được biến nào "đang khó nhất". Vì vậy
 > nhóm em bật MRV **cùng với** FC trong bảng so sánh.
 
-**❓ Cho ví dụ Degree heuristic có tác dụng trong bài?**
-> Trong đồ thị ràng buộc, `Bố mẹ` có bậc 3 (nối với cả 3 người), `Con gái` và `Ông bà` bậc 2, `Con trai` bậc 1. Nếu hai biến có
-> cùng số giá trị còn lại, Degree sẽ chọn `Bố mẹ` — vì chọn nhà cho Bố mẹ trước sẽ thu hẹp miền của cả 3 người còn lại.
+**❓ MRV chọn `Con trai` đầu tiên dù `Con trai` không có cạnh nào trong đồ thị ràng buộc. Có hợp lý không?**
+> MRV chỉ nhìn **kích thước miền**, không nhìn đồ thị: `Con trai` có ít lựa chọn nhất (270). Degree heuristic chỉ dùng khi **hoà** về MRV;
+> nếu hai biến cùng số giá trị, Degree sẽ chọn `Bố mẹ` (bậc 2: nối với `Ông bà` và `Con gái`). Chọn `Con trai` trước vẫn có ích vì
+> sau đó Forward Checking dùng ràng buộc ngân sách để loại các căn quá đắt của 3 người còn lại.
 
 ---
 
@@ -318,7 +326,7 @@ và **khôi phục** chính xác khi quay lui.
 ### 3. Giải thích code
 **`forward_check(csp, assignment, var)`** — gọi **sau khi** `assignment[var]` đã được gán:
 - `removed = []`: nhật ký các giá trị bị xoá, dạng `(biến, id_căn)`.
-- Duyệt mọi biến **chưa gán** `other` (bao gồm cả biến không kề, vì ràng buộc ngân sách và AllDiff là toàn cục).
+- Duyệt mọi biến **chưa gán** `other` (bao gồm cả biến không có cạnh, vì ràng buộc ngân sách và AllDiff là toàn cục).
 - Duyệt trên **bản sao** `list(csp.domains[other])` vì ta xoá phần tử trong lúc lặp — xoá trên chính list đang duyệt sẽ bỏ sót phần tử.
 - Nếu `is_consistent(...)` sai → xoá khỏi miền và ghi vào `removed`.
 - Nếu miền rỗng → trả `(removed, False)` để Module 5 quay lui ngay.
@@ -333,15 +341,17 @@ và **khôi phục** chính xác khi quay lui.
 > những giá trị đó có thể lại hợp lệ. Nếu không khôi phục, ta sẽ **mất lời giải** — thuật toán không còn đầy đủ (incomplete).
 
 **❓ FC khác AC-3 thế nào? Sao nhóm không dùng AC-3?**
-> FC chỉ kiểm tra giữa biến vừa gán và các biến chưa gán; AC-3 kiểm tra mọi cặp và lan truyền. Ví dụ: sau khi gán `Ông bà`,
-> FC thu hẹp miền `Bố mẹ` và `Con gái`, nhưng **không** kiểm tra tiếp xem mỗi căn còn lại của `Bố mẹ` có còn căn nào
-> của `Con trai` ở gần không — AC-3 thì có. AC-3 cắt tỉa mạnh hơn nhưng tốn chi phí O(c·d³) mỗi lần chạy. Với bài 4 biến,
-> FC + MRV đã giảm số node xuống rất thấp nên FC là lựa chọn cân bằng. Nâng cấp lên MAC là hướng phát triển.
+> FC chỉ kiểm tra giữa biến vừa gán và các biến chưa gán; AC-3 kiểm tra mọi cặp và lan truyền. Ví dụ: sau khi gán `Ông bà` ở phố Lò Đúc,
+> FC giữ lại trong miền `Bố mẹ` chỉ các căn ở Lò Đúc, nhưng **không** kiểm tra tiếp `Con gái` (vì `Con gái` không có ràng buộc trực tiếp
+> với `Ông bà`). AC-3 thì sẽ thấy: `Con gái` phải cùng phố với `Bố mẹ`, mà `Bố mẹ` giờ chỉ còn ở Lò Đúc → `Con gái` cũng chỉ còn căn ở Lò Đúc.
+> AC-3 cắt tỉa mạnh hơn nhưng tốn chi phí O(c·d³) mỗi lần chạy. Với bài 4 biến, FC + MRV đã giảm số node xuống rất thấp nên FC là lựa chọn
+> cân bằng. Nâng cấp lên MAC là hướng phát triển.
 
 **❓ FC phát hiện ngõ cụt sớm hơn backtracking thường ở chỗ nào? Cho ví dụ.**
 > Backtracking thường chỉ biết ngõ cụt khi đến lượt gán một biến và **mọi** giá trị đều sai. FC biết ngay khi miền một biến
-> **tương lai** rỗng. Ví dụ: chọn cho `Bố mẹ` một căn 7 tỷ → FC lập tức thấy chỉ còn 1.5 tỷ cho 3 người, miền của ai đó rỗng →
-> bỏ căn đó ngay, thay vì gán thử hàng trăm tổ hợp cho các người còn lại. Thực nghiệm: số node giảm từ 1.031.369 xuống 11.402.
+> **tương lai** rỗng. Ví dụ: chọn cho `Bố mẹ` một căn 9 tỷ → chỉ còn 2 tỷ cho 3 người → FC lập tức xoá mọi căn đắt hơn 2 tỷ khỏi miền
+> của họ; nếu một người không còn căn nào thì bỏ căn 9 tỷ ngay, thay vì gán thử hàng trăm tổ hợp. Thực nghiệm: số node giảm từ
+> 312.093 xuống 848.
 
 ---
 
@@ -386,12 +396,12 @@ Thuật toán **Backtracking Search** đệ quy ghép tất cả module lại; c
 > được sửa tại chỗ rồi hoàn tác (`del assignment[var]`, `restore`), không sao chép toàn bộ trạng thái ở mỗi node.
 
 **❓ Kết quả trả về có phải là phương án *tốt nhất* (rẻ nhất) không?**
-> Không. CSP tìm phương án **thoả mãn** (*satisfaction*), không phải **tối ưu** (*optimization*). Kết quả ví dụ dùng đúng 8.50/8.5 tỷ,
+> Không. CSP tìm phương án **thoả mãn** (*satisfaction*), không phải **tối ưu** (*optimization*). Kết quả ví dụ tốn 10,43 / 11 tỷ:
 > hợp lệ nhưng không nhất thiết rẻ nhất. Muốn tối ưu có thể dùng **Branch and Bound**: tìm được lời giải chi phí C thì đặt ngân sách
 > mới < C và tìm tiếp, cho tới khi vô nghiệm — lời giải cuối cùng là tối ưu.
 
-**❓ Vì sao "nodes" ở dòng cuối là 4 mà "cắt tỉa" vẫn là 768?**
-> 4 node nghĩa là gán 4 biến, mỗi biến thử **đúng 1 giá trị** đầu tiên của LCV là thành công — không quay lui lần nào. 768 là
+**❓ Vì sao "nodes" ở dòng cuối là 4 mà "cắt tỉa" vẫn là 838?**
+> 4 node nghĩa là gán 4 biến, mỗi biến thử **đúng 1 giá trị** đầu tiên của LCV là thành công — không quay lui lần nào. 838 là
 > số giá trị FC loại khỏi miền các biến khác trong 4 lần gán đó. Chính việc cắt tỉa này giữ cho các lựa chọn tiếp theo
 > luôn hợp lệ.
 
@@ -407,16 +417,16 @@ Thuật toán **Backtracking Search** đệ quy ghép tất cả module lại; c
 > Có, rất nhiều. Muốn tìm tất cả, sửa bước 6: thay vì `return result` thì lưu vào danh sách và tiếp tục duyệt.
 
 **❓ Dữ liệu lấy từ đâu, có đáng tin không?**
-> Từ bộ dữ liệu công khai *Vietnam Housing Dataset (Hanoi)* trên Kaggle (giấy phép CC BY-NC-SA 4.0), tin đăng 2020–2021.
-> Nhóm đã làm sạch: bỏ dòng thiếu dữ liệu, bỏ giá/m² vô lý (lỗi nhập liệu), bỏ trùng, lấy ngẫu nhiên 1.500 căn. Giá là **giá rao bán**,
-> không phải giá giao dịch thật. Chi tiết trong `data/README.md`.
+> Nhóm tổng hợp 2.040 tin rao bán căn hộ ở Hai Bà Trưng (tháng 6–12/2025) từ bộ dữ liệu công khai *Vietnam Real Estates* trên Kaggle
+> (giấy phép CC BY-NC-SA 4.0). Sau khi làm sạch (bỏ dòng thiếu phố hoặc số phòng ngủ, bỏ giá/m² vô lý, bỏ tin đăng trùng) còn 1.678 căn.
+> Giá là **giá rao bán**, không phải giá giao dịch thật. Chi tiết trong `data/README.md`.
 
 ---
 
 ## 8. Mẹo khi thuyết trình
 
-- **Chạy demo trực tiếp** cả 2 lệnh (8.5 và 8.0 tỷ). Bảng số liệu là bằng chứng mạnh nhất cho thấy nhóm hiểu thuật toán.
+- **Chạy demo trực tiếp** cả 2 lệnh (11 và 8.0 tỷ). Bảng số liệu là bằng chứng mạnh nhất cho thấy nhóm hiểu thuật toán.
 - Mỗi người mở **đúng file của mình** và chỉ vào từng dòng khi giải thích; các bước trong code đã được đánh số.
-- **Thử sửa `REQUIREMENTS`** trong `m1_problem.py` (ví dụ đổi quận của Ông bà) rồi chạy lại để luyện giải thích tại sao số node thay đổi.
+- **Thử sửa `REQUIREMENTS`** trong `m1_problem.py` (ví dụ cho Ông bà chỉ chọn phố `Minh Khai`) rồi chạy lại để luyện giải thích tại sao số node thay đổi.
 - Nói được **1 câu kết nối** module mình với module trước và sau (xem [mục 4](#4-bức-tranh-tổng-thể)).
 - Tài liệu tham khảo chính: Russell & Norvig, *Artificial Intelligence: A Modern Approach*, Chương 6 — *Constraint Satisfaction Problems*.

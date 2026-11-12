@@ -1,69 +1,58 @@
-"""Clean the raw Hanoi housing listings and sample 1,500 houses.
+"""Clean the team's Hai Bà Trưng apartment listings.
 
-Input:  data/raw/HN_housing_price_raw.csv
-Output: data/hanoi_houses.csv  (district, price_billion_vnd, area_m2, bedrooms)
+Input:  data/raw/hai_ba_trung_apartments_final.csv  (semicolon-separated, Vietnamese number format)
+Output: data/apartments.csv
 """
 import csv
-import random
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "data" / "raw" / "HN_housing_price_raw.csv"
-OUT = ROOT / "data" / "hanoi_houses.csv"
-SAMPLE_SIZE = 1500
-SEED = 42
+RAW = ROOT / "data" / "raw" / "hai_ba_trung_apartments_final.csv"
+OUT = ROOT / "data" / "apartments.csv"
+
+# Excel turned some street names into dates when the file was edited.
+STREET_FIXES = {"08-Thg3": "8 Tháng 3"}
 
 
 def vn_number(s):
-    """Parse Vietnamese-formatted numbers: '93,27' -> 93.27, '1.250.000' -> 1250000."""
-    s = s.strip()
-    if "," in s:
-        s = s.replace(".", "").replace(",", ".")
-    elif s.count(".") > 1:
-        s = s.replace(".", "")
-    return float(s)
-
-
-def price_per_m2_billion(s):
-    m = re.match(r"\s*([\d.,]+)\s*(triệu|tỷ|đ)/m²", s)
-    if not m:
-        return None
-    value, unit = vn_number(m.group(1)), m.group(2)
-    return value * {"tỷ": 1, "triệu": 1e-3, "đ": 1e-9}[unit]
+    """'8.900.000.000' -> 8900000000.0 ; '107.228.915,66' -> 107228915.66"""
+    return float(s.replace(".", "").replace(",", "."))
 
 
 def clean(row):
-    district = re.sub(r"^(Quận|Huyện|Thị xã)\s+", "", row["Quận"].strip())
-    bed = re.match(r"\s*(\d+)\s*phòng", row["Số phòng ngủ"])
-    area = re.match(r"\s*([\d.,]+)\s*m²", row["Diện tích"])
-    ppm2 = price_per_m2_billion(row["Giá/m2"])
-    if not (district and bed and area and ppm2):
+    street = STREET_FIXES.get(row["street_name"].strip(), row["street_name"].strip())
+    if not street or not row["bedroom_count"]:
+        return None                                   # needed by the CSP
+    price = vn_number(row["price_vnd"]) / 1e9          # billion VND
+    area = vn_number(row["area_m2"])
+    price_per_m2 = price * 1000 / area                 # million VND / m²
+    # Drop typos: e.g. 4.5 million or 4,800 billion VND for one apartment.
+    if not (20 <= price_per_m2 <= 300 and 15 <= area <= 400):
         return None
-    area = vn_number(area.group(1))
-    bedrooms = int(bed.group(1))
-    price = round(area * ppm2, 2)
-    # Drop implausible listings / typos.
-    # Price per m² outside 15 million–1 billion VND is almost always a typo
-    # (e.g. total price typed into the per-m² field).
-    if not (15 <= area <= 500 and 1 <= bedrooms <= 10 and 0.5 <= price <= 100
-            and 0.015 <= ppm2 <= 1.0):
-        return None
-    return {"district": district, "price_billion_vnd": price,
-            "area_m2": area, "bedrooms": bedrooms}
+    return {
+        "property_type": row["property_type_name"].strip(),
+        "street": street,
+        "project": row["project_name"].strip(),
+        "price_billion_vnd": round(price, 3),
+        "area_m2": area,
+        "bedrooms": int(row["bedroom_count"]),
+        "bathrooms": row["bathroom_count"].strip(),
+        "title": row["name"].strip(),
+    }
 
 
 def main():
-    with open(RAW, encoding="utf-8-sig") as f:
-        rows = [c for c in map(clean, csv.DictReader(f)) if c]
-    unique = list({tuple(r.values()): r for r in rows}.values())
-    random.Random(SEED).shuffle(unique)
-    sample = sorted(unique[:SAMPLE_SIZE], key=lambda r: (r["district"], r["price_billion_vnd"]))
+    with open(RAW, encoding="utf-8-sig", newline="") as f:
+        raw = list(csv.DictReader(f, delimiter=";"))
+    rows = [c for c in map(clean, raw) if c]
+    # Same title + price + area = the same listing posted twice.
+    unique = list({(r["title"], r["price_billion_vnd"], r["area_m2"]): r for r in rows}.values())
     with open(OUT, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(sample[0]))
+        w = csv.DictWriter(f, fieldnames=["id", *unique[0]])
         w.writeheader()
-        w.writerows(sample)
-    print(f"{len(rows)} clean rows, {len(unique)} unique -> wrote {len(sample)} to {OUT.relative_to(ROOT)}")
+        for i, r in enumerate(unique):
+            w.writerow({"id": i, **r})
+    print(f"{len(raw)} raw -> {len(rows)} clean -> {len(unique)} unique rows in {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

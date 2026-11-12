@@ -2,20 +2,17 @@
 MODULE 2 — BỘ KIỂM TRA RÀNG BUỘC (Thành viên 2)
 
 Có 3 loại ràng buộc trong bài toán:
-  1. Unary  (đơn)     : chỉ liên quan 1 biến.   VD: nhà của "Bố mẹ" phải >= 3 phòng ngủ.
-  2. Binary (nhị phân): liên quan 2 biến.       VD: nhà "Bố mẹ" phải gần nhà "Con trai".
+  1. Unary  (đơn)     : chỉ liên quan 1 biến.   VD: căn của "Bố mẹ" phải >= 3 phòng ngủ.
+  2. Binary (nhị phân): liên quan 2 biến.       VD: căn "Bố mẹ" phải cùng phố với căn "Ông bà".
   3. Global (toàn cục): liên quan nhiều biến.   VD: tổng tiền các căn <= ngân sách gia đình;
                                                     các người không được mua trùng 1 căn (AllDiff).
 """
-
-from m1_problem import are_near
-
 
 # ---------------------------------------------------------------------------
 # 1. RÀNG BUỘC ĐƠN (UNARY)
 # ---------------------------------------------------------------------------
 def satisfies_unary(csp, var, house_id):
-    """Căn nhà house_id có thoả yêu cầu riêng của người var không?"""
+    """Căn hộ house_id có thoả yêu cầu riêng của người var không?"""
     house = csp.houses[house_id]
     req = csp.requirements[var]
     if house["price"] > req["max_price"]:              # vượt ngân sách cá nhân
@@ -24,8 +21,10 @@ def satisfies_unary(csp, var, house_id):
         return False
     if house["bedrooms"] < req["min_bedrooms"]:        # thiếu phòng ngủ
         return False
-    if req["districts"] is not None and house["district"] not in req["districts"]:
-        return False                                   # không đúng quận mong muốn
+    if req["types"] is not None and house["type"] not in req["types"]:
+        return False                                   # không đúng loại căn hộ
+    if req["streets"] is not None and house["street"] not in req["streets"]:
+        return False                                   # không đúng phố mong muốn
     return True
 
 
@@ -45,11 +44,9 @@ def satisfies_binary(csp, var_a, house_a, var_b, house_b):
     """Hai lựa chọn (var_a = house_a) và (var_b = house_b) có hợp nhau không?"""
     if house_a == house_b:                     # AllDiff: 2 người không mua cùng 1 căn
         return False
-    pair_is_near = (var_a, var_b) in csp.near_pairs or (var_b, var_a) in csp.near_pairs
-    if pair_is_near:                           # nếu 2 người này phải ở gần nhau
-        d_a = csp.houses[house_a]["district"]
-        d_b = csp.houses[house_b]["district"]
-        if not are_near(d_a, d_b):
+    pairs = csp.same_street_pairs
+    if (var_a, var_b) in pairs or (var_b, var_a) in pairs:   # 2 người này phải ở cùng phố
+        if csp.houses[house_a]["street"] != csp.houses[house_b]["street"]:
             return False
     return True
 
