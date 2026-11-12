@@ -44,7 +44,10 @@ def clean(row):
     bedrooms = int(bed.group(1))
     price = round(area * ppm2, 2)
     # Drop implausible listings / typos.
-    if not (15 <= area <= 500 and 1 <= bedrooms <= 10 and 0.5 <= price <= 100):
+    # Price per m² outside 15 million–1 billion VND is almost always a typo
+    # (e.g. total price typed into the per-m² field).
+    if not (15 <= area <= 500 and 1 <= bedrooms <= 10 and 0.5 <= price <= 100
+            and 0.015 <= ppm2 <= 1.0):
         return None
     return {"district": district, "price_billion_vnd": price,
             "area_m2": area, "bedrooms": bedrooms}
